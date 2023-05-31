@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 @ToString
 public class Refund {
-
+    private boolean isNew;
     private String inspection;
     private String number;
     private String date1;

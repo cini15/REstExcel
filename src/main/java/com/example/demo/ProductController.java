@@ -4,6 +4,8 @@ import com.example.demo.model.TotalMass;
 import com.example.demo.model.dto.*;
 import com.spire.doc.Document;
 import com.spire.doc.FileFormat;
+import com.spire.doc.TextWatermark;
+import com.spire.doc.WatermarkBase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.*;
@@ -15,6 +17,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 
 @RestController
@@ -380,7 +386,13 @@ public class ProductController {
             document.replace("date", String.valueOf(sticker.getDate()), true, true);
             document.replace("FIO1", sticker.getFio1(), true, true);
             document.replace("FIO2", sticker.getFio2(), true, true);
-
+            String date= "";
+            if(!sticker.isNew()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                        + simpleDateFormat.format(new Date());
+            }
+            document.replace("new", date, true, true);
             //Save the result document
             document.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
@@ -420,7 +432,13 @@ public class ProductController {
             document.replace("result", conclusion.getResult(), true, true);
             document.replace("events", conclusion.getEvents(), true, true);
             document.replace("FIO", conclusion.getFio(), true, true);
-
+            String date= "";
+            if(!conclusion.isNew()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                        + simpleDateFormat.format(new Date());
+            }
+            document.replace("new", date, true, true);
             //Save the result document
             document.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
@@ -459,6 +477,13 @@ public class ProductController {
             document.replace("FIO2", disinfection.getFio2(), true, true);
             document.replace("FIO3", disinfection.getFio3(), true, true);
 
+            String date= "";
+            if(!disinfection.isNew()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                        + simpleDateFormat.format(new Date());
+            }
+            document.replace("new", date, true, true);
             document.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
 
@@ -494,7 +519,13 @@ public class ProductController {
             document.replace("FIO1", destruction.getFio1(), true, true);
             document.replace("FIO2", destruction.getFio2(), true, true);
             document.replace("FIO3", destruction.getFio3(), true, true);
-
+            String date= "";
+            if(!destruction.isNew()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                        + simpleDateFormat.format(new Date());
+            }
+            document.replace("new", date, true, true);
             //Save the result document
             document.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
@@ -535,7 +566,13 @@ public class ProductController {
             document.replace("FIO2", refund.getFio2(), true, true);
             document.replace("FIO3", refund.getFio3(), true, true);
 
-            //Save the result document
+            String date= "";
+            if(!refund.isNew()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                        + simpleDateFormat.format(new Date());
+            }
+            document.replace("new", date, true, true);
             document.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
         } catch (Exception e) {

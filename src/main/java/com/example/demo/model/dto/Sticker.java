@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 @ToString
 public class Sticker {
-
+    private boolean isNew;
     private String number;
     private String name;
     private String weight;

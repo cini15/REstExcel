@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 @ToString
 public class Destruction {
-
+    private boolean isNew;
     private String number;
     private String date1;
     private String date2;

@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 @ToString
 public class Conclusion {
-
+    private boolean isNew;
     private String number1;
     private String number2;
     private String number3;
