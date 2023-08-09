@@ -16,6 +16,8 @@ public class ConclusionProduct {
     private String number2;
     private String date2;
     private String from_whos;
+    private String fssNum;
+    private String fssCountry;
 
 
 }

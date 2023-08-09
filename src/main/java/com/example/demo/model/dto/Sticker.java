@@ -15,7 +15,6 @@ public class Sticker {
 
     private List<StickerProduct> stickerProducts;
     private String number;
-    private String origin;
     private String place;
     private String recipient;
     private String appointment;
@@ -26,5 +25,6 @@ public class Sticker {
     private String date;
     private String fio1;
     private String fio2;
+    private boolean isNew;
 
 }

@@ -15,6 +15,9 @@ public class CountryReport {
     //переменные json импорта экспорта и реэк
     private LocalDate starDate;
     private LocalDate endDate;
+    private LocalDate starDateYear;
+    private LocalDate endDateYear;
+    private boolean isWeekWeight;
     private String reqCountryOrProduct;
     private String resCountryOrProduct;
     private boolean isProduct;

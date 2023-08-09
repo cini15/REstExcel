@@ -5,6 +5,7 @@ import com.example.demo.model.dto.*;
 import com.spire.doc.*;
 import com.spire.doc.documents.HorizontalAlignment;
 import com.spire.doc.documents.Paragraph;
+import com.spire.doc.documents.TableRowHeightType;
 import com.spire.doc.documents.VerticalAlignment;
 import com.spire.doc.fields.TextRange;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +75,8 @@ public class ProductController {
 
         for (int i = 2; i <= 17; i++) {
             String date2 = sheet.getRow(2).getCell(i).toString();
+            date2 = date2.replace("startYearDate", countryRequest.getStarDateYear().toString());
+            date2 = date2.replace("endYearDate", countryRequest.getEndDateYear().toString());
             date2 = date2.replace("startDate", countryRequest.getStarDate().toString());
             date2 = date2.replace("endDate", countryRequest.getEndDate().toString());
             if (countryRequest.isImport()) {
@@ -141,6 +144,9 @@ public class ProductController {
             Import.createRowsFss2022(xssfWorkbook, countryRequest, cellStyle, cellStyleRow, 2);
         }
 
+        if(!countryRequest.isWeekWeight())
+            Import.removeColumn(sheet);
+
         File tempFile = File.createTempFile(nameFile, null);
         try (OutputStream fileOut = Files.newOutputStream(tempFile.toPath())) {
             xssfWorkbook.write(fileOut);
@@ -192,6 +198,8 @@ public class ProductController {
 
         for (int i = 2; i <= 17; i++) {
             String date2 = sheet.getRow(2).getCell(i).toString();
+            date2 = date2.replace("startYearDate", countryRequest.getStarDateYear().toString());
+            date2 = date2.replace("endYearDate", countryRequest.getEndDateYear().toString());
             date2 = date2.replace("startDate", countryRequest.getStarDate().toString());
             date2 = date2.replace("endDate", countryRequest.getEndDate().toString());
             sheet.getRow(2).getCell(i).setCellValue(date2);
@@ -235,6 +243,9 @@ public class ProductController {
         } else {
             sheet.getRow(1).getCell(1).setCellValue("Наименование подкарантинной продукции");
         }
+
+        if(!countryRequest.isWeekWeight())
+            Import.removeColumn(sheet);
 
         File tempFile = File.createTempFile(nameFile, null);
 
@@ -383,7 +394,8 @@ public class ProductController {
                 documentAll.replace("number", String.valueOf(sticker.getNumber()), true, true);
                 documentAll.replace("name", "согласно приложению", true, true);
                 documentAll.replace("weight", "согласно приложению", true, true);
-                documentAll.replace("origin", sticker.getOrigin(), true, true);
+                documentAll.replace("origin", "согласно приложению", true, true);
+//                documentAll.replace("origin", sticker.getStickerProducts().get(0).getOrigin(), true, true);
                 documentAll.replace("place", sticker.getPlace(), true, true);
                 documentAll.replace("quantity", "согласно приложению", true, true);
                 documentAll.replace("unit", "", true, true);
@@ -445,27 +457,37 @@ public class ProductController {
                 txtRange.getCharacterFormat().setFontSize(11);
                 txtRange.getCharacterFormat().setFontName("Times New Roman");
 
-                String text = "/происхождением из страны: ";
+                String text = "происхождением";
+                String text2 = "из страны:";
                 for (int r = 0; r < sticker.getStickerProducts().size(); r++) {
                     TableRow dataRow = table.getRows().get(r + 2);
                     dataRow.getCells().get(0).addParagraph().appendText(String.valueOf(r + 1));
+                    dataRow.getCells().get(0).setCellWidth(5f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(1).addParagraph().appendText(sticker.getStickerProducts().get(r).getName()).getCharacterFormat().setFontSize(11);
+                    dataRow.setHeightType(TableRowHeightType.At_Least);
+                    dataRow.getCells().get(1).addParagraph().appendText(sticker.getStickerProducts().get(r).getName()+"/").getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(1).addParagraph().appendText(text);
-                    dataRow.getCells().get(1).addParagraph().appendText(sticker.getOrigin()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).addParagraph().appendText(text2);
+                    dataRow.getCells().get(1).addParagraph().appendText(sticker.getStickerProducts().get(r).getOrigin()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).setCellWidth(20f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(2).addParagraph().appendText(sticker.getStickerProducts().get(r).getWeight()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(2).setCellWidth(15f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(3).addParagraph().appendText(sticker.getStickerProducts().get(r).getAdditional_info()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(3).setCellWidth(25f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(4).splitCell(2, 1);
                     dataRow.getCells().get(4).addParagraph().appendText(sticker.getStickerProducts().get(r).getQuantity()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(4).setCellWidth(10f,CellWidthType.Percentage);
+
                     dataRow.getCells().get(5).addParagraph().appendText(sticker.getStickerProducts().get(r).getUnit()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(5).setCellWidth(10f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(6).addParagraph().appendText(sticker.getStickerProducts().get(r).getSeal_number()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(6).setCellWidth(20f,CellWidthType.Percentage);
 
                     table.autoFit(AutoFitBehaviorType.Auto_Fit_To_Contents);
-
                 }
 
                 documentAll.saveToFile(tempFile.getAbsolutePath(), FileFormat.Docx_2013);
@@ -506,6 +528,14 @@ public class ProductController {
                     }
                     doc3.getSections().remove(section2);
                 }
+                String date= "";
+                if(!sticker.isNew()) {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                    date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                            + simpleDateFormat.format(new Date());
+                }
+                doc3.replace("new", date, true, true);
+
                 doc3.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
             } else {
@@ -513,7 +543,7 @@ public class ProductController {
                 documentOne.replace("number", String.valueOf(sticker.getNumber()), true, true);
                 documentOne.replace("name", sticker.getStickerProducts().get(0).getName(), true, true);
                 documentOne.replace("weight", sticker.getStickerProducts().get(0).getWeight(), true, true);
-                documentOne.replace("origin", sticker.getOrigin(), true, true);
+                documentOne.replace("origin", sticker.getStickerProducts().get(0).getOrigin(), true, true);
                 documentOne.replace("place", sticker.getPlace(), true, true);
                 documentOne.replace("quantity", sticker.getStickerProducts().get(0).getQuantity(), true, true);
                 documentOne.replace("unit", sticker.getStickerProducts().get(0).getUnit(), true, true);
@@ -529,18 +559,24 @@ public class ProductController {
                 documentOne.replace("FIO1", sticker.getFio1(), true, true);
                 documentOne.replace("FIO2", sticker.getFio2(), true, true);
 
+                String date= "";
+                if(!sticker.isNew()) {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                    date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                            + simpleDateFormat.format(new Date());
+                }
+                documentOne.replace("new", date, true, true);
+                documentOne.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
+            }
 
-            }
-            String date= "";
-            if(!sticker.isNew()) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
-                        + simpleDateFormat.format(new Date());
-            }
-            documentOne.replace("new", date, true, true);
-            documentOne.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
-            }
+
+//            documentAll.replace("new", date, true, true);
+////            documentOne.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
+//            if(sticker.getStickerProducts().size()>1)
+//                documentAll.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
+//            else
+//                documentOne.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -565,7 +601,10 @@ public class ProductController {
             Document documentAll = new Document(doc);
             InputStream doc2 = getClass().getClassLoader().getResourceAsStream("ConclusionSignature.docx");
             Document documentSign = new Document(doc2);
-            InputStream doc4 = getClass().getClassLoader().getResourceAsStream("ConclusionOne.docx");
+            InputStream doc4;
+            if(conclusion.getNumber1().contains("b"))
+            doc4 =  getClass().getClassLoader().getResourceAsStream("ConclusionOneBel.docx");
+            else doc4 = getClass().getClassLoader().getResourceAsStream("ConclusionOne.docx");
             Document documentOne = new Document(doc4);
 
 
@@ -574,17 +613,17 @@ public class ProductController {
                 documentAll.replace("number1", String.valueOf(conclusion.getNumber1()), true, true);
                 documentAll.replace("name_legal", conclusion.getName_legal(), true, true);
                 documentAll.replace("date1", String.valueOf(conclusion.getDate1()), true, true);
-                documentAll.replace("date2", "согласно приложению", true, true);
+                documentAll.replace("date2", conclusion.getConclusionProducts().get(0).getDate2(), true, true);
                 documentAll.replace("date3", String.valueOf(conclusion.getDate3()), true, true);
                 documentAll.replace("date4", String.valueOf(conclusion.getDate4()), true, true);
-                documentAll.replace("number2", "", true, true);
+                documentAll.replace("number2", conclusion.getConclusionProducts().get(0).getNumber2(), true, true);
                 documentAll.replace("number3", String.valueOf(conclusion.getNumber3()), true, true);
                 documentAll.replace("issued", conclusion.getIssued(), true, true);
                 documentAll.replace("name", "согласно приложению", true, true);
                 documentAll.replace("weight", "", true, true);
                 documentAll.replace("origin", "согласно приложению", true, true);
                 documentAll.replace("place", conclusion.getPlace(), true, true);
-                documentAll.replace("from_whos", "согласно приложению", true, true);
+                documentAll.replace("from_whos", conclusion.getConclusionProducts().get(0).getFrom_whos(), true, true);
                 documentAll.replace("recipient", conclusion.getRecipient(), true, true);
                 documentAll.replace("result", "согласно приложению", true, true);
                 documentAll.replace("events", conclusion.getEvents(), true, true);
@@ -615,26 +654,28 @@ public class ProductController {
                 }
 
 
-                String text = "/происхождением из страны: ";
-                String text2 = " от ";
-                String text3 = ", выданный в стране:  ";
+                String text = " происхождением из страны: ";
+                String text3 = " выданный в стране:  ";
 
                 for (int r = 0; r < conclusion.getConclusionProducts().size(); r++) {
                     TableRow dataRow = table.getRows().get(r + 1);
                     dataRow.getCells().get(0).addParagraph().appendText(String.valueOf(r + 1));
+                    dataRow.getCells().get(0).setCellWidth(5f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(1).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getName()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getName()+"/").getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(1).addParagraph().appendText(text);
                     dataRow.getCells().get(1).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getOrigin()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).setCellWidth(25f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getNumber2()).getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(2).addParagraph().appendText(text2);
-                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getDate2()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getFssNum()+",").getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(2).addParagraph().appendText(text3);
-                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getFrom_whos()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getFssCountry()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(2).setCellWidth(30f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(3).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getWeight()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(3).setCellWidth(20f,CellWidthType.Percentage);
                     dataRow.getCells().get(4).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getResult()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(4).setCellWidth(20f,CellWidthType.Percentage);
 
                     table.autoFit(AutoFitBehaviorType.Auto_Fit_To_Contents);
 
@@ -702,7 +743,10 @@ public class ProductController {
                 documentOne.replace("result", conclusion.getConclusionProducts().get(0).getResult(), true, true);
                 documentOne.replace("events", conclusion.getEvents(), true, true);
                 documentOne.replace("FIO", conclusion.getFio(), true, true);
-
+                if(!conclusion.getNumber1().contains("b")){
+                    documentOne.replace("fssNum",conclusion.getConclusionProducts().get(0).getFssNum(),true,true);
+                    documentOne.replace("fssCountry",conclusion.getConclusionProducts().get(0).getFssCountry(),true,true);
+                }
                 //Save the result document
                 String date= "";
                 if(!conclusion.isNew()) {
@@ -750,6 +794,13 @@ public class ProductController {
             document.replace("FIO2", disinfection.getFio2(), true, true);
             document.replace("FIO3", disinfection.getFio3(), true, true);
 
+            String date= "";
+            if(!disinfection.isNew()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                date = "СВЕДЕНИЯ ИЗ БАЗЫ ДАННЫХ \n АИС \"БЕЛФИТО\" "
+                        + simpleDateFormat.format(new Date());
+            }
+            document.replace("new", date, true, true);
             document.saveToFile(tempFile.getAbsolutePath(), FileFormat.PDF);
 
 

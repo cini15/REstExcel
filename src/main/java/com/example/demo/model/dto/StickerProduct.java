@@ -14,4 +14,5 @@ public class StickerProduct {
     private String unit;
     private String additional_info;
     private String seal_number;
+    private String origin;
 }

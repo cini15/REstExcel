@@ -1,7 +1,11 @@
 package com.example.demo.model.dto;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCol;
 
 import java.util.List;
 
@@ -38,7 +42,6 @@ public class Import {
         cellMassProductWeekWeight.setCellValue(mass.weekWeightDouble());
         cellMassProductDateFromTo.setCellValue(mass.dateFromToDouble());
 
-
         for (ElementRegion elementRegion : regions) {
             switch (elementRegion.getRegion()) {
                 case 1:
@@ -58,18 +61,41 @@ public class Import {
                     cellRegionsGrodnoWeekWeight.setCellValue(elementRegion.weekWeightDouble());
                     break;
                 case 5:
-                    cellRegionsMinskDateWeight.setCellValue(elementRegion.dateWeightDouble());
-                    cellRegionsMinskWeekWeight.setCellValue(elementRegion.weekWeightDouble());
+                case 7:
+                    cellRegionsMinskDateWeight.setCellValue(cellRegionsMinskDateWeight.getNumericCellValue()+elementRegion.dateWeightDouble());
+                    cellRegionsMinskWeekWeight.setCellValue(cellRegionsMinskWeekWeight.getNumericCellValue()+elementRegion.weekWeightDouble());
                     break;
                 case 6:
                     cellRegionsMogilevDateWeight.setCellValue(elementRegion.dateWeightDouble());
                     cellRegionsMogilexWeekWeight.setCellValue(elementRegion.weekWeightDouble());
                     break;
-
             }
         }
     }
 
+    public static void removeColumn(XSSFSheet sheet){
+        removeColumn(sheet,17);
+        removeColumn(sheet,15);
+        removeColumn(sheet,13);
+        removeColumn(sheet,11);
+        removeColumn(sheet,9);
+        removeColumn(sheet,7);
+        removeColumn(sheet,4);
+    }
+
+    private static void removeColumn(XSSFSheet sheet, int column) {
+        sheet.getColumnHelper().getColumn(column,true).setHidden(true);
+        sheet.getColumnHelper().getColumn(column,true).set(null);
+        for (Row row : sheet) {
+            Cell cell = row.getCell(column);
+            if (cell != null) {
+                int numericCell = cell.getRowIndex();
+                if(numericCell<2) continue;
+                row.removeCell(cell);
+            }
+
+        }
+    }
 
     public static void createRowsFss2022(XSSFWorkbook xssfWorkbook, CountryReport countryRequest, XSSFCellStyle cellStyle, XSSFCellStyle cellStyleRow, int i) {
 
@@ -206,8 +232,8 @@ public class Import {
     }
 
     private static XSSFCell getXssfCell(XSSFRow row, int i, XSSFCellStyle cellStyleRow) {
-        XSSFCell cellRegionsBrestDateWeight = row.createCell(i);
-        cellRegionsBrestDateWeight.setCellStyle(cellStyleRow);
-        return cellRegionsBrestDateWeight;
+        XSSFCell cell = row.createCell(i);
+        cell.setCellStyle(cellStyleRow);
+        return cell;
     }
 }
