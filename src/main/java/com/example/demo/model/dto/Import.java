@@ -111,7 +111,8 @@ public class Import {
         fss32022.setCellStyle(cellStyle);
         row.setHeight((short) 900);
         sheet.addMergedRegion(new CellRangeAddress(rowLast + 1, rowLast + 1, 0, 2));
-        fss2022.setCellValue("Выдано ФСС, (на всю продукцию), шт в 2022 г.");
+        fss2022.setCellValue("Выдано ФСС, (на всю продукцию), шт в "
+                + countryRequest.getStarDateYear().getYear() + " г.");
 
         XSSFCell fssPeriod2023 = getXssfCell(row, i + 1, cellStyleRow);
         XSSFCell fssPeriod7 = getXssfCell(row, i + 2, cellStyleRow);
