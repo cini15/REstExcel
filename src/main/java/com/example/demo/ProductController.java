@@ -401,7 +401,7 @@ public class ProductController {
                 documentAll.replace("unit", "", true, true);
                 documentAll.replace("recipient", sticker.getRecipient(), true, true);
                 documentAll.replace("appointment", sticker.getAppointment(), true, true);
-                documentAll.replace("area", String.valueOf(sticker.getArea()), true, true);
+                documentAll.replace("area", "согласно приложению", true, true);
                 documentAll.replace("external_sings", sticker.getExternal_sings(), true, true);
                 documentAll.replace("provisional_definition", sticker.getProvisional_definition(), true, true);
                 documentAll.replace("additional_info", "согласно приложению", true, true);
@@ -474,7 +474,8 @@ public class ProductController {
                     dataRow.getCells().get(2).addParagraph().appendText(sticker.getStickerProducts().get(r).getWeight()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(2).setCellWidth(15f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(3).addParagraph().appendText(sticker.getStickerProducts().get(r).getAdditional_info()).getCharacterFormat().setFontSize(11);
+                    String additional_info = sticker.getStickerProducts().get(r).getAdditional_info();
+                    dataRow.getCells().get(3).addParagraph().appendText(additional_info.isEmpty()? "-----": additional_info).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(3).setCellWidth(25f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(4).splitCell(2, 1);
@@ -548,12 +549,12 @@ public class ProductController {
                 documentOne.replace("quantity", sticker.getStickerProducts().get(0).getQuantity(), true, true);
                 documentOne.replace("unit", sticker.getStickerProducts().get(0).getUnit(), true, true);
                 documentOne.replace("recipient", sticker.getRecipient(), true, true);
-                documentOne.replace("appointment", sticker.getAppointment(), true, true);
-                documentOne.replace("area", String.valueOf(sticker.getArea()), true, true);
-                documentOne.replace("external_sings", sticker.getExternal_sings(), true, true);
-                documentOne.replace("provisional_definition", sticker.getProvisional_definition(), true, true);
-                documentOne.replace("additional_info", sticker.getStickerProducts().get(0).getAdditional_info(), true, true);
-                documentOne.replace("seal_number", sticker.getStickerProducts().get(0).getSeal_number(), true, true);
+                documentOne.replace("appointment", sticker.getAppointment().isEmpty()? "-----" : sticker.getAppointment(), true, true);
+                documentOne.replace("area", String.valueOf(sticker.getArea()==0? "-----": sticker.getArea()), true, true);
+                documentOne.replace("external_sings", sticker.getExternal_sings().isEmpty()? "-----": sticker.getExternal_sings(), true, true);
+                documentOne.replace("provisional_definition", sticker.getProvisional_definition().isEmpty()? "-----" : sticker.getProvisional_definition(), true, true);
+                documentOne.replace("additional_info", sticker.getStickerProducts().get(0).getAdditional_info().isEmpty()? "-----" : sticker.getStickerProducts().get(0).getAdditional_info(), true, true);
+                documentOne.replace("seal_number", sticker.getStickerProducts().get(0).getSeal_number().isEmpty() ? "-----" : sticker.getStickerProducts().get(0).getSeal_number(), true, true);
                 documentOne.replace("position", sticker.getPosition(), true, true);
                 documentOne.replace("date", String.valueOf(sticker.getDate()), true, true);
                 documentOne.replace("FIO1", sticker.getFio1(), true, true);
@@ -610,20 +611,21 @@ public class ProductController {
 
             if (conclusion.getConclusionProducts().size() > 1) {
                 // Replace a specific text
+                ConclusionProduct conclusionProduct = conclusion.getConclusionProducts().get(0);
                 documentAll.replace("number1", String.valueOf(conclusion.getNumber1()), true, true);
                 documentAll.replace("name_legal", conclusion.getName_legal(), true, true);
                 documentAll.replace("date1", String.valueOf(conclusion.getDate1()), true, true);
-                documentAll.replace("date2", conclusion.getConclusionProducts().get(0).getDate2(), true, true);
+                documentAll.replace("date2", conclusionProduct.getDate2(), true, true);
                 documentAll.replace("date3", String.valueOf(conclusion.getDate3()), true, true);
                 documentAll.replace("date4", String.valueOf(conclusion.getDate4()), true, true);
-                documentAll.replace("number2", conclusion.getConclusionProducts().get(0).getNumber2(), true, true);
+                documentAll.replace("number2", conclusionProduct.getNumber2(), true, true);
                 documentAll.replace("number3", String.valueOf(conclusion.getNumber3()), true, true);
                 documentAll.replace("issued", conclusion.getIssued(), true, true);
                 documentAll.replace("name", "согласно приложению", true, true);
                 documentAll.replace("weight", "", true, true);
                 documentAll.replace("origin", "согласно приложению", true, true);
                 documentAll.replace("place", conclusion.getPlace(), true, true);
-                documentAll.replace("from_whos", conclusion.getConclusionProducts().get(0).getFrom_whos(), true, true);
+                documentAll.replace("from_whos", conclusionProduct.getFrom_whos(), true, true);
                 documentAll.replace("recipient", conclusion.getRecipient(), true, true);
                 documentAll.replace("result", "согласно приложению", true, true);
                 documentAll.replace("events", conclusion.getEvents(), true, true);
@@ -658,23 +660,27 @@ public class ProductController {
                 String text3 = " выданный в стране:  ";
 
                 for (int r = 0; r < conclusion.getConclusionProducts().size(); r++) {
+                    ConclusionProduct product = conclusion.getConclusionProducts().get(r);
                     TableRow dataRow = table.getRows().get(r + 1);
                     dataRow.getCells().get(0).addParagraph().appendText(String.valueOf(r + 1));
                     dataRow.getCells().get(0).setCellWidth(5f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(1).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getName()+"/").getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).addParagraph().appendText(product.getName()+"/").getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(1).addParagraph().appendText(text);
-                    dataRow.getCells().get(1).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getOrigin()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).addParagraph().appendText(product.getOrigin()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(1).setCellWidth(25f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getFssNum()+",").getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(2).addParagraph().appendText(text3);
-                    dataRow.getCells().get(2).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getFssCountry()).getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(2).setCellWidth(30f,CellWidthType.Percentage);
-
-                    dataRow.getCells().get(3).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getWeight()).getCharacterFormat().setFontSize(11);
+                    if(product.getFssNum().isEmpty() && product.getFssCountry().isEmpty() ){
+                        dataRow.getCells().get(2).addParagraph().appendText("-----").getCharacterFormat().setFontSize(11);
+                    }else {
+                        dataRow.getCells().get(2).addParagraph().appendText(product.getFssNum() + ",").getCharacterFormat().setFontSize(11);
+                        dataRow.getCells().get(2).addParagraph().appendText(text3);
+                        dataRow.getCells().get(2).addParagraph().appendText(product.getFssCountry()).getCharacterFormat().setFontSize(11);
+                        dataRow.getCells().get(2).setCellWidth(30f, CellWidthType.Percentage);
+                    }
+                    dataRow.getCells().get(3).addParagraph().appendText(product.getWeight()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(3).setCellWidth(20f,CellWidthType.Percentage);
-                    dataRow.getCells().get(4).addParagraph().appendText(conclusion.getConclusionProducts().get(r).getResult()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(4).addParagraph().appendText(product.getResult()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(4).setCellWidth(20f,CellWidthType.Percentage);
 
                     table.autoFit(AutoFitBehaviorType.Auto_Fit_To_Contents);
@@ -829,7 +835,7 @@ public class ProductController {
             document.replace("quantity", "", true, true);
 //            document.replace("quantity", String.valueOf(destruction.getQuantity()), true, true);
             document.replace("units", String.valueOf(destruction.getUnits()), true, true);
-            document.replace("place", destruction.getPlace(), true, true);
+            document.replace("place", destruction.getPlace()==null? "-----" :  destruction.getPlace(), true, true);
             document.replace("position1", destruction.getPosition1(), true, true);
             document.replace("position2", destruction.getPosition2(), true, true);
             document.replace("position3", destruction.getPosition3(), true, true);

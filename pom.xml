@@ -73,6 +73,11 @@
             <artifactId>poi</artifactId>
             <version>5.2.2</version>
         </dependency>
+
+
+
+
+
         <dependency>
             <groupId>org.docx4j</groupId>
             <artifactId>docx4j-JAXB-MOXy</artifactId>
@@ -121,6 +126,18 @@
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.5.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.9</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/net.iharder/base64 -->
         <dependency>
             <groupId>net.iharder</groupId>
