@@ -3,6 +3,7 @@ package com.example.demo;
 import com.example.demo.model.TotalMass;
 import com.example.demo.model.dto.*;
 import com.spire.doc.*;
+import com.spire.doc.collections.CellCollection;
 import com.spire.doc.documents.HorizontalAlignment;
 import com.spire.doc.documents.Paragraph;
 import com.spire.doc.documents.TableRowHeightType;
@@ -400,10 +401,10 @@ public class ProductController {
                 documentAll.replace("quantity", "согласно приложению", true, true);
                 documentAll.replace("unit", "", true, true);
                 documentAll.replace("recipient", sticker.getRecipient(), true, true);
-                documentAll.replace("appointment", sticker.getAppointment(), true, true);
+                documentAll.replace("appointment", sticker.getAppointment().isEmpty()? "-----" : sticker.getAppointment(), true, true);
                 documentAll.replace("area", "согласно приложению", true, true);
-                documentAll.replace("external_sings", sticker.getExternal_sings(), true, true);
-                documentAll.replace("provisional_definition", sticker.getProvisional_definition(), true, true);
+                documentAll.replace("external_sings", sticker.getExternal_sings().isEmpty()? "-----": sticker.getExternal_sings(), true, true);
+                documentAll.replace("provisional_definition", sticker.getProvisional_definition().isEmpty()? "-----" : sticker.getProvisional_definition(), true, true);
                 documentAll.replace("additional_info", "согласно приложению", true, true);
                 documentAll.replace("seal_number", "согласно приложению", true, true);
                 documentAll.replace("position", sticker.getPosition(), true, true);
@@ -457,35 +458,34 @@ public class ProductController {
                 txtRange.getCharacterFormat().setFontSize(11);
                 txtRange.getCharacterFormat().setFontName("Times New Roman");
 
-                String text = "происхождением";
-                String text2 = "из страны:";
+                String text = "происхождением из страны:";
                 for (int r = 0; r < sticker.getStickerProducts().size(); r++) {
                     TableRow dataRow = table.getRows().get(r + 2);
                     dataRow.getCells().get(0).addParagraph().appendText(String.valueOf(r + 1));
                     dataRow.getCells().get(0).setCellWidth(5f,CellWidthType.Percentage);
 
                     dataRow.setHeightType(TableRowHeightType.At_Least);
-                    dataRow.getCells().get(1).addParagraph().appendText(sticker.getStickerProducts().get(r).getName()+"/").getCharacterFormat().setFontSize(11);
+                    StickerProduct stickerProduct = sticker.getStickerProducts().get(r);
+                    dataRow.getCells().get(1).addParagraph().appendText(stickerProduct.getName()+"/").getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(1).addParagraph().appendText(text);
-                    dataRow.getCells().get(1).addParagraph().appendText(text2);
-                    dataRow.getCells().get(1).addParagraph().appendText(sticker.getStickerProducts().get(r).getOrigin()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(1).addParagraph().appendText(stickerProduct.getOrigin()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(1).setCellWidth(20f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(2).addParagraph().appendText(sticker.getStickerProducts().get(r).getWeight()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(2).addParagraph().appendText(stickerProduct.getWeight()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(2).setCellWidth(15f,CellWidthType.Percentage);
 
-                    String additional_info = sticker.getStickerProducts().get(r).getAdditional_info();
+                    String additional_info = stickerProduct.getAdditional_info();
                     dataRow.getCells().get(3).addParagraph().appendText(additional_info.isEmpty()? "-----": additional_info).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(3).setCellWidth(25f,CellWidthType.Percentage);
 
                     dataRow.getCells().get(4).splitCell(2, 1);
-                    dataRow.getCells().get(4).addParagraph().appendText(sticker.getStickerProducts().get(r).getQuantity()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(4).addParagraph().appendText(stickerProduct.getQuantity()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(4).setCellWidth(10f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(5).addParagraph().appendText(sticker.getStickerProducts().get(r).getUnit()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(5).addParagraph().appendText(stickerProduct.getUnit()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(5).setCellWidth(10f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(6).addParagraph().appendText(sticker.getStickerProducts().get(r).getSeal_number()).getCharacterFormat().setFontSize(11);
+                    dataRow.getCells().get(6).addParagraph().appendText(stickerProduct.getSeal_number()).getCharacterFormat().setFontSize(11);
                     dataRow.getCells().get(6).setCellWidth(20f,CellWidthType.Percentage);
 
                     table.autoFit(AutoFitBehaviorType.Auto_Fit_To_Contents);
@@ -644,11 +644,12 @@ public class ProductController {
 
                 Table table = section.addTable(true);
                 table.resetCells(conclusion.getConclusionProducts().size() + 1, header.length);
-
+                table.setDefaultRowHeight(20f);
                 TableRow row = table.getRows().get(0);
                 for (int i = 0; i < header.length; i++) {
-                    row.getCells().get(i).getCellFormat().setVerticalAlignment(VerticalAlignment.Middle);
-                    Paragraph p = row.getCells().get(i).addParagraph();
+                    TableCell tableCell = row.getCells().get(i);
+                    tableCell.getCellFormat().setVerticalAlignment(VerticalAlignment.Middle);
+                    Paragraph p = tableCell.addParagraph();
                     p.getFormat().setHorizontalAlignment(HorizontalAlignment.Center);
                     TextRange txtRange = p.appendText(header[i]);
                     txtRange.getCharacterFormat().setFontSize(11);
@@ -656,32 +657,31 @@ public class ProductController {
                 }
 
 
-                String text = " происхождением из страны: ";
-                String text3 = " выданный в стране:  ";
+                String text = "происхождением из страны: ";
+                String text3 = "выданный в стране: ";
 
                 for (int r = 0; r < conclusion.getConclusionProducts().size(); r++) {
                     ConclusionProduct product = conclusion.getConclusionProducts().get(r);
                     TableRow dataRow = table.getRows().get(r + 1);
-                    dataRow.getCells().get(0).addParagraph().appendText(String.valueOf(r + 1));
-                    dataRow.getCells().get(0).setCellWidth(5f,CellWidthType.Percentage);
+                    dataRow.setHeightType(TableRowHeightType.At_Least);
+                    CellCollection cells = dataRow.getCells();
+                    cells.get(0).addParagraph().appendText(String.valueOf(r + 1)).getCharacterFormat().setFontSize(11);
+                    cells.get(0).setCellWidth(5f,CellWidthType.Percentage);
 
-                    dataRow.getCells().get(1).addParagraph().appendText(product.getName()+"/").getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(1).addParagraph().appendText(text);
-                    dataRow.getCells().get(1).addParagraph().appendText(product.getOrigin()).getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(1).setCellWidth(25f,CellWidthType.Percentage);
+                    cells.get(1).addParagraph().appendText(product.getName()+"/ " + text).getCharacterFormat().setFontSize(11);
+                    cells.get(1).addParagraph().appendText(product.getOrigin()).getCharacterFormat().setFontSize(11);
+                    cells.get(1).setCellWidth(25f,CellWidthType.Percentage);
 
                     if(product.getFssNum().isEmpty() && product.getFssCountry().isEmpty() ){
-                        dataRow.getCells().get(2).addParagraph().appendText("-----").getCharacterFormat().setFontSize(11);
+                        cells.get(2).addParagraph().appendText("-----").getCharacterFormat().setFontSize(11);
                     }else {
-                        dataRow.getCells().get(2).addParagraph().appendText(product.getFssNum() + ",").getCharacterFormat().setFontSize(11);
-                        dataRow.getCells().get(2).addParagraph().appendText(text3);
-                        dataRow.getCells().get(2).addParagraph().appendText(product.getFssCountry()).getCharacterFormat().setFontSize(11);
-                        dataRow.getCells().get(2).setCellWidth(30f, CellWidthType.Percentage);
+                        cells.get(2).addParagraph().appendText(product.getFssNum() + ", " + text3 + product.getFssCountry()).getCharacterFormat().setFontSize(11);
+                        cells.get(2).setCellWidth(30f, CellWidthType.Percentage);
                     }
-                    dataRow.getCells().get(3).addParagraph().appendText(product.getWeight()).getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(3).setCellWidth(20f,CellWidthType.Percentage);
-                    dataRow.getCells().get(4).addParagraph().appendText(product.getResult()).getCharacterFormat().setFontSize(11);
-                    dataRow.getCells().get(4).setCellWidth(20f,CellWidthType.Percentage);
+                    cells.get(3).addParagraph().appendText(product.getWeight()).getCharacterFormat().setFontSize(11);
+                    cells.get(3).setCellWidth(20f,CellWidthType.Percentage);
+                    cells.get(4).addParagraph().appendText(product.getResult()).getCharacterFormat().setFontSize(11);
+                    cells.get(4).setCellWidth(20f,CellWidthType.Percentage);
 
                     table.autoFit(AutoFitBehaviorType.Auto_Fit_To_Contents);
 
